@@ -15,13 +15,13 @@ const (
 	MuTypeEtcd
 )
 
-type EtcdDriverConf struct {
+type EtcdMuDriverConf struct {
 	etcdCli client.Client
 	id string
 }
 
-func NewEtcdDriverConf(etcdCli client.Client, id string) *EtcdDriverConf {
-	return &EtcdDriverConf{
+func NewEtcdMuDriverConf(etcdCli client.Client, id string) *EtcdMuDriverConf {
+	return &EtcdMuDriverConf{
 		etcdCli: etcdCli,
 		id: id,
 	}
@@ -37,7 +37,7 @@ type MuConf struct {
 func NewMuConf(muType MuType, key string, ttl time.Duration, muDriverConf any) *MuConf {
 	switch muType {
 	case MuTypeEtcd:
-		_ = muDriverConf.(*EtcdDriverConf)
+		_ = muDriverConf.(*EtcdMuDriverConf)
 	}
 	return &MuConf{
 		muType: muType,
@@ -50,13 +50,13 @@ func NewMuConf(muType MuType, key string, ttl time.Duration, muDriverConf any) *
 func MustNewMu(conf *MuConf) distribmu.Mutex {
 	switch conf.muType {
 	case MuTypeEtcd:
-		newEtcdMu(conf.key, conf.ttl, conf.muDriverConf.(*EtcdDriverConf))
+		newEtcdMu(conf.key, conf.ttl, conf.muDriverConf.(*EtcdMuDriverConf))
 	}
 
 	panic(any("no support mutex type"))
 }
 
-func newEtcdMu(key string, ttl time.Duration, driverConf *EtcdDriverConf) *etcd.Mutex {
+func newEtcdMu(key string, ttl time.Duration, driverConf *EtcdMuDriverConf) *etcd.Mutex {
 	return etcd.New(driverConf.etcdCli, key, driverConf.id, ttl)
 }
 

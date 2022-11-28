@@ -19,7 +19,7 @@ func TestEtcdMuLock(t *testing.T) {
 		return
 	}
 	ctx := context.Background()
-	mu := factory.MustNewMu(factory.NewMuConf(factory.MuTypeEtcd, "111", time.Second * 20, factory.NewEtcdDriverConf(etcdCli, "abc")))
+	mu := factory.MustNewMu(factory.NewMuConf(factory.MuTypeEtcd, "abc", time.Second * 20, factory.NewEtcdMuDriverConf(etcdCli, "1")))
 	if existed, err := mu.Lock(ctx); err != nil {
 		t.Error(err)
 	} else if !existed {
