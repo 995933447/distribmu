@@ -1,4 +1,4 @@
-package distribmu
+package test
 
 import (
 	"context"
@@ -18,9 +18,14 @@ func TestEtcdMuLock(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	ctx := context.Background()
-	mu := factory.MustNewMu(factory.NewMuConf(factory.MuTypeEtcd, "abc", time.Second * 20, factory.NewEtcdMuDriverConf(etcdCli, "1")))
-	if existed, err := mu.Lock(ctx); err != nil {
+	newMuConf := factory.NewMuConf(
+		factory.MuTypeEtcd,
+		"abc",
+		time.Second * 20,
+		factory.NewEtcdMuDriverConf(etcdCli, "1"),
+		)
+	mu := factory.MustNewMu(newMuConf)
+	if existed, err := mu.Lock(context.Background()); err != nil {
 		t.Error(err)
 	} else if !existed {
 		t.Log(existed)

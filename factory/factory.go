@@ -3,7 +3,7 @@ package factory
 
 import (
 	"github.com/995933447/distribmu"
-	"github.com/995933447/distribmu/impl/etcd"
+	"github.com/995933447/distribmu/impl/etcdv2"
 	"github.com/etcd-io/etcd/client"
 	"time"
 )
