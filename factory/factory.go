@@ -56,7 +56,7 @@ func MustNewMu(conf *MuConf) distribmu.Mutex {
 	panic(any("no support mutex type"))
 }
 
-func newEtcdMu(key string, ttl time.Duration, driverConf *EtcdMuDriverConf) *etcd.Mutex {
-	return etcd.New(driverConf.etcdCli, key, driverConf.id, ttl)
+func newEtcdMu(key string, ttl time.Duration, driverConf *EtcdMuDriverConf) *etcdv2.Mutex {
+	return etcdv2.New(driverConf.etcdCli, key, driverConf.id, ttl)
 }
 

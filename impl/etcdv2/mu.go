@@ -1,4 +1,4 @@
-package etcd
+package etcdv2
 
 import (
 	"github.com/995933447/distribmu"
