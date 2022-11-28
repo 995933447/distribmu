@@ -1,7 +1,7 @@
 package etcd
 
 import (
-	"995933447/distribmu"
+	"github.com/995933447/distribmu"
 	"context"
 	"errors"
 	"github.com/etcd-io/etcd/client"

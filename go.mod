@@ -1,4 +1,4 @@
-module 995933447/distribmu
+module github.com/995933447/distribmu
 
 go 1.19
 
