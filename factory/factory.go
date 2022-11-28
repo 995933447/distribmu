@@ -1,7 +1,9 @@
-package distribmu
+package factory
+
 
 import (
-	"995933447/distribmu/impl/etcd"
+	"github.com/995933447/distribmu"
+	"github.com/995933447/distribmu/impl/etcd"
 	"github.com/etcd-io/etcd/client"
 	"time"
 )
@@ -45,7 +47,7 @@ func NewMuConf(muType MuType, key string, ttl time.Duration, muDriverConf any) *
 	}
 }
 
-func MustNewMu(conf *MuConf) Mutex {
+func MustNewMu(conf *MuConf) distribmu.Mutex {
 	switch conf.muType {
 	case MuTypeEtcd:
 		newEtcdMu(conf.key, conf.ttl, conf.muDriverConf.(*EtcdDriverConf))
@@ -57,3 +59,4 @@ func MustNewMu(conf *MuConf) Mutex {
 func newEtcdMu(key string, ttl time.Duration, driverConf *EtcdDriverConf) *etcd.Mutex {
 	return etcd.New(driverConf.etcdCli, key, driverConf.id, ttl)
 }
+

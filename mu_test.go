@@ -2,6 +2,7 @@ package distribmu
 
 import (
 	"context"
+	"github.com/995933447/distribmu/factory"
 	"github.com/etcd-io/etcd/client"
 	"testing"
 	"time"
@@ -18,7 +19,7 @@ func TestEtcdMuLock(t *testing.T) {
 		return
 	}
 	ctx := context.Background()
-	mu := MustNewMu(NewMuConf(MuTypeEtcd, "111", time.Second * 20, NewEtcdDriverConf(etcdCli, "abc")))
+	mu := factory.MustNewMu(factory.NewMuConf(factory.MuTypeEtcd, "111", time.Second * 20, factory.NewEtcdDriverConf(etcdCli, "abc")))
 	if existed, err := mu.Lock(ctx); err != nil {
 		t.Error(err)
 	} else if !existed {
