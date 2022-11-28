@@ -2,8 +2,8 @@ package distribmu
 
 import (
 	"995933447/distribmu/impl/etcd"
-	"github.com/etcd-io/etcd/client"
 	"context"
+	"github.com/etcd-io/etcd/client"
 	"time"
 )
 
