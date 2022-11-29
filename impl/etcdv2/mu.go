@@ -1,9 +1,9 @@
 package etcdv2
 
 import (
-	"github.com/995933447/distribmu"
 	"context"
 	"errors"
+	"github.com/995933447/distribmu"
 	"github.com/etcd-io/etcd/client"
 	"time"
 )
@@ -23,41 +23,36 @@ func (m *Mutex) GetExpireTime() time.Time {
 	return m.expireTime
 }
 
-func (m *Mutex) Lock(ctx context.Context) (existed bool, err error) {
-	existed = false
-	err = nil
+func (m *Mutex) Lock(ctx context.Context) (bool, error) {
 	setOptions := &client.SetOptions{
 		PrevExist: client.PrevNoExist,
 		TTL:       m.ttl,
 	}
-	_, err = m.etcdKeyApi.Set(ctx, m.key, m.id, setOptions)
-	if err == nil {
-		m.expireTime = time.Now().Add(m.ttl)
-		return
+	_, err := m.etcdKeyApi.Set(ctx, m.key, m.id, setOptions)
+	if err != nil {
+		e, ok := err.(client.Error)
+		if !ok {
+			// not etcd client error
+			return false, err
+		}
+		if e.Code != client.ErrorCodeNodeExist {
+			return false, err
+		}
+		return false, nil
 	}
-	e, ok := err.(client.Error)
-	if !ok {
-		// not etcd client error
-		return
-	}
-	if e.Code != client.ErrorCodeNodeExist {
-		return
-	}
-	// node has existed
-	existed = true
-	err = nil
-	return
+	m.expireTime = time.Now().Add(m.ttl)
+	return true, nil
 }
 
 // LockWait is a distributed lock implementation.
-// if bool is ok, it means lock is not acquired.
+// if bool is ok, it means locked
 func (m *Mutex) LockWait(ctx context.Context, timeout time.Duration) (bool, error) {
-	existed, err := m.Lock(ctx)
+	locked, err := m.Lock(ctx)
 	if err != nil {
-		return existed, err
+		return false, err
 	}
-	if !existed {
-		return false, nil
+	if locked {
+		return true, nil
 	}
 	err = m.WaitKeyRelease(ctx, timeout)
 	if err != nil {
@@ -66,15 +61,14 @@ func (m *Mutex) LockWait(ctx context.Context, timeout time.Duration) (bool, erro
 		}
 		return false, err
 	}
-	existed, err = m.Lock(ctx)
+	locked, err = m.Lock(ctx)
 	if err != nil {
-		return existed, err
+		return false, err
 	}
-	if !existed {
-		return false, nil
+	if locked {
+		return true, nil
 	}
-	// 存在了
-	return true, nil
+	return false, nil
 }
 
 func (m *Mutex) WaitKeyRelease(ctx context.Context, timeout time.Duration) error {
@@ -114,12 +108,11 @@ func (m *Mutex) WaitKeyRelease(ctx context.Context, timeout time.Duration) error
 
 func (m *Mutex) Unlock(ctx context.Context) error {
 	_, err := m.etcdKeyApi.Delete(ctx, m.key, nil)
-	if err == nil {
-		return nil
-	}
-	e, ok := err.(client.Error)
-	if ok && e.Code == client.ErrorCodeKeyNotFound {
-		return nil
+	if err != nil {
+		e, ok := err.(client.Error)
+		if !ok || e.Code != client.ErrorCodeKeyNotFound {
+			return err
+		}
 	}
 	return nil
 }
@@ -127,13 +120,13 @@ func (m *Mutex) Unlock(ctx context.Context) error {
 // DoWithMustDone 分布式锁上后做一些事情，会一直重试至获取到了锁为止，所以要谨慎使用
 func (m *Mutex) DoWithMustDone(ctx context.Context, timeout time.Duration, logic func() error) error {
 	for {
-		lost, err := m.LockWait(ctx, timeout)
+		locked, err := m.LockWait(ctx, timeout)
 		if err != nil {
 			return err
 		}
 
 		// 没有获取到，重试
-		if lost {
+		if !locked {
 			continue
 		}
 
@@ -152,12 +145,12 @@ func (m *Mutex) DoWithMustDone(ctx context.Context, timeout time.Duration, logic
 // DoWithMaxRetry 分布式锁上后做一些事情，如果锁成功，则执行func，否则尝试至最大重试次数
 func (m *Mutex) DoWithMaxRetry(ctx context.Context, max int, timeout time.Duration, logic func() error) error {
 	for i := 0; i < max; i++ {
-		lost, err := m.LockWait(ctx, timeout)
+		locked, err := m.LockWait(ctx, timeout)
 		if err != nil {
 			return err
 		}
 		// 没有获取到，重试
-		if lost {
+		if !locked {
 			continue
 		}
 		if err = logic(); err != nil {
@@ -198,10 +191,11 @@ func (m *Mutex) RefreshTTL(ctx context.Context) error {
 	}
 
 	_, err := m.etcdKeyApi.Set(ctx, m.key, "", setOptions)
-	if err == nil {
-		m.expireTime = time.Now().Add(m.ttl)
-		return nil
+	if err != nil {
+		return err
 	}
+
+	m.expireTime = time.Now().Add(m.ttl)
 
 	if lost, err := isLostLock(); err != nil {
 		return err

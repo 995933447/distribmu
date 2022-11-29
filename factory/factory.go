@@ -50,7 +50,7 @@ func NewMuConf(muType MuType, key string, ttl time.Duration, muDriverConf any) *
 func MustNewMu(conf *MuConf) distribmu.Mutex {
 	switch conf.muType {
 	case MuTypeEtcd:
-		newEtcdMu(conf.key, conf.ttl, conf.muDriverConf.(*EtcdMuDriverConf))
+		return newEtcdMu(conf.key, conf.ttl, conf.muDriverConf.(*EtcdMuDriverConf))
 	}
 
 	panic(any("no support mutex type"))
