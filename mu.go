@@ -9,7 +9,7 @@ type Mutex interface {
 	// 获取过期时间
 	GetExpireTime() time.Time
 	// 进行分布式锁,失败返回false
-	Lock(ctx context.Context) (bool, err error)
+	Lock(ctx context.Context) (bool, error)
 	// 进行分布式锁,并尝试在timeout时间期间内直到获得锁,失败返回false
 	LockWait(ctx context.Context, timeout time.Duration) (bool, error)
 	// 在timeout时间期间内等待锁释放
