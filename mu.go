@@ -39,7 +39,7 @@ func DoWithMustDone(ctx context.Context, mu Mutex, timeout time.Duration, logic 
 			return err
 		}
 
-		if err := mu.Unlock(ctx); err != nil {
+		if err := mu.Unlock(ctx, false); err != nil {
 			return err
 		}
 		return nil
@@ -60,7 +60,7 @@ func DoWithMaxRetry(ctx context.Context, mu Mutex, max int, timeout time.Duratio
 		if err = logic(); err != nil {
 			return err
 		}
-		if err := mu.Unlock(ctx); err != nil {
+		if err := mu.Unlock(ctx, false); err != nil {
 		}
 		return nil
 	}

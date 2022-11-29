@@ -55,9 +55,9 @@ func (m *Mutex) LockWait(ctx context.Context, timeout time.Duration) (bool, erro
 
 		time.Sleep(time.Millisecond * time.Duration(m.precisionMillSec))
 
-		if time.Now().Sub(tryAt) >= timeout {
-			break
-		}
+		//if time.Now().Sub(tryAt) >= timeout {
+		//	break
+		//}
 	}
 	return false, nil
 }
@@ -82,9 +82,9 @@ func (m *Mutex) WaitKeyRelease(ctx context.Context, timeout time.Duration) error
 
 		time.Sleep(time.Millisecond * time.Duration(m.precisionMillSec))
 
-		if time.Now().Sub(tryAt) >= timeout {
-			break
-		}
+		//if time.Now().Sub(tryAt) >= timeout {
+		//	break
+		//}
 	}
 	return distribmu.ErrWaitTimeout
 }

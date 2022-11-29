@@ -15,6 +15,7 @@ type MuType int
 const (
 	MuTypeNil MuType = iota
 	MuTypeEtcd
+	MuTypeRedis
 )
 
 type EtcdMuDriverConf struct {
@@ -26,9 +27,17 @@ type RedisGroupMuDriverConf struct {
 	precisionMillSec int
 }
 
-func NewEtcdMuDriverConf(etcdCli client.Client, id string) *EtcdMuDriverConf {
+func NewEtcdMuDriverConf(etcdCli client.Client) *EtcdMuDriverConf {
 	return &EtcdMuDriverConf{
 		etcdCli: etcdCli,
+	}
+}
+
+
+func NewRedisMuDriverConf(redisGroup *redisgroup.Group, precisionMillSec int) *RedisGroupMuDriverConf {
+	return &RedisGroupMuDriverConf{
+		redisGroup: redisGroup,
+		precisionMillSec: precisionMillSec,
 	}
 }
 
@@ -44,6 +53,8 @@ func NewMuConf(muType MuType, key string, ttl time.Duration, id string, muDriver
 	switch muType {
 	case MuTypeEtcd:
 		_ = muDriverConf.(*EtcdMuDriverConf)
+	case MuTypeRedis:
+		_= muDriverConf.(*RedisGroupMuDriverConf)
 	}
 	return &MuConf{
 		muType: muType,
@@ -58,6 +69,8 @@ func MustNewMu(conf *MuConf) distribmu.Mutex {
 	switch conf.muType {
 	case MuTypeEtcd:
 		return newEtcdMu(conf.key, conf.ttl, conf.id, conf.muDriverConf.(*EtcdMuDriverConf))
+	case MuTypeRedis:
+		return newRedisMu(conf.key, conf.ttl, conf.id, conf.muDriverConf.(*RedisGroupMuDriverConf))
 	}
 
 	panic(any("no support mutex type"))
@@ -67,6 +80,6 @@ func newEtcdMu(key string, ttl time.Duration, id string, driverConf *EtcdMuDrive
 	return etcdv2.New(driverConf.etcdCli, key, id, ttl)
 }
 
-func newRedisGroup(key string, ttl time.Duration, id string, driverConf *RedisGroupMuDriverConf) *redis.Mutex {
+func newRedisMu(key string, ttl time.Duration, id string, driverConf *RedisGroupMuDriverConf) *redis.Mutex {
 	return redis.New(driverConf.redisGroup, key, id, ttl, driverConf.precisionMillSec)
 }
