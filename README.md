@@ -80,12 +80,6 @@ func TestEtcdMuLock(t *testing.T) {
 		t.Error(err)
 	}
 	t.Logf("bool:%v", success)
-	getResp, err := client.NewKeysAPI(etcdCli).Get(context.TODO(), "abcd", nil)
-	if err != nil {
-		t.Error(err)
-	}
-	t.Logf("node val:%v", getResp.Node.Value)
-	t.Logf("node val ttl:%v", getResp.Node.TTL)
 }
 
 ```
