@@ -171,6 +171,9 @@ func (m *Mutex) RefreshTTL(ctx context.Context) error {
 }
 
 func New(etcdCli client.Client, key, id string, ttl time.Duration) *Mutex {
+	if string([]byte(key)[0]) != "/" {
+		key = "/" + key
+	}
 	return &Mutex{
 		id:     id,
 		key: 	key,
