@@ -2,7 +2,6 @@ package etcdv2
 
 import (
 	"context"
-	"errors"
 	"github.com/995933447/distribmu"
 	"github.com/etcd-io/etcd/client"
 	"time"
@@ -40,7 +39,9 @@ func (m *Mutex) Lock(ctx context.Context) (bool, error) {
 		}
 		return false, nil
 	}
+
 	m.expireTime = time.Now().Add(m.ttl)
+
 	return true, nil
 }
 
@@ -51,9 +52,11 @@ func (m *Mutex) LockWait(ctx context.Context, timeout time.Duration) (bool, erro
 	if err != nil {
 		return false, err
 	}
+
 	if locked {
 		return true, nil
 	}
+
 	err = m.WaitKeyRelease(ctx, timeout)
 	if err != nil {
 		if err == distribmu.ErrWaitTimeout {
@@ -61,17 +64,20 @@ func (m *Mutex) LockWait(ctx context.Context, timeout time.Duration) (bool, erro
 		}
 		return false, err
 	}
+
 	locked, err = m.Lock(ctx)
 	if err != nil {
 		return false, err
 	}
+
 	if locked {
 		return true, nil
 	}
+
 	return false, nil
 }
 
-func (m *Mutex) WaitKeyRelease(ctx context.Context, timeout time.Duration) error {
+func (m *Mutex) WaitKeyRelease(ctx context.Context, timeout time.Duration) (error) {
 	resp, err := m.etcdKeyApi.Get(ctx, m.key, nil)
 	if err != nil {
 		if e, ok := err.(client.Error); ok {
@@ -81,6 +87,7 @@ func (m *Mutex) WaitKeyRelease(ctx context.Context, timeout time.Duration) error
 		}
 		return err
 	}
+
 	watcherOptions := &client.WatcherOptions{
 		AfterIndex: resp.Index,
 		Recursive:  false,
@@ -100,68 +107,25 @@ func (m *Mutex) WaitKeyRelease(ctx context.Context, timeout time.Duration) error
 		}
 		return err
 	}
+
 	if resp != nil && (resp.Action == "delete" || resp.Action == "expire") {
 		return nil
 	}
+
 	return distribmu.ErrWaitTimeout
 }
 
-func (m *Mutex) Unlock(ctx context.Context) error {
-	_, err := m.etcdKeyApi.Delete(ctx, m.key, nil)
-	if err != nil {
-		e, ok := err.(client.Error)
-		if !ok || e.Code != client.ErrorCodeKeyNotFound {
-			return err
+func (m *Mutex) Unlock(ctx context.Context, force bool) error {
+	if force || m.expireTime.After(time.Now()) {
+		_, err := m.etcdKeyApi.Delete(ctx, m.key, nil)
+		if err != nil {
+			e, ok := err.(client.Error)
+			if !ok || e.Code != client.ErrorCodeKeyNotFound {
+				return err
+			}
 		}
 	}
 	return nil
-}
-
-// DoWithMustDone 分布式锁上后做一些事情，会一直重试至获取到了锁为止，所以要谨慎使用
-func (m *Mutex) DoWithMustDone(ctx context.Context, timeout time.Duration, logic func() error) error {
-	for {
-		locked, err := m.LockWait(ctx, timeout)
-		if err != nil {
-			return err
-		}
-
-		// 没有获取到，重试
-		if !locked {
-			continue
-		}
-
-		if err = logic(); err != nil {
-			return err
-		}
-
-		if err := m.Unlock(ctx); err != nil {
-			return err
-		}
-
-		return nil
-	}
-}
-
-// DoWithMaxRetry 分布式锁上后做一些事情，如果锁成功，则执行func，否则尝试至最大重试次数
-func (m *Mutex) DoWithMaxRetry(ctx context.Context, max int, timeout time.Duration, logic func() error) error {
-	for i := 0; i < max; i++ {
-		locked, err := m.LockWait(ctx, timeout)
-		if err != nil {
-			return err
-		}
-		// 没有获取到，重试
-		if !locked {
-			continue
-		}
-		if err = logic(); err != nil {
-			return err
-		}
-		if err := m.Unlock(ctx); err != nil {
-		}
-		return nil
-	}
-
-	return errors.New("over max retry")
 }
 
 func (m *Mutex) RefreshTTL(ctx context.Context) error {

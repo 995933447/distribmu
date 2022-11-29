@@ -20,6 +20,22 @@ type Mutex interface {
 	RefreshTTL(ctx context.Context) error
 }
 ````
+助手函数
+```
+package distribmu
+
+import (
+	"context"
+	"errors"
+	"time"
+)
+
+// DoWithMustDone 分布式锁上后做一些事情，会一直重试至获取到了锁为止，所以要谨慎使用
+func DoWithMustDone(ctx context.Context, mu Mutex, timeout time.Duration, logic func() error) error {...}
+
+// DoWithMaxRetry 分布式锁上后做一些事情，如果锁成功，则执行func，否则尝试至最大重试次数
+func DoWithMaxRetry(ctx context.Context, mu Mutex, max int, timeout time.Duration, logic func() error) error {...}
+```
 使用示例：
 ```
 package test
