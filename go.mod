@@ -3,8 +3,8 @@ module github.com/995933447/distribmu
 go 1.19
 
 require (
-	github.com/995933447/log-go v0.0.0-20230217070038-4af7871ff9f2
-	github.com/995933447/redisgroup v0.0.0-20220803160352-e08d00f81719
+	github.com/995933447/log-go v0.0.0-20230217072159-b63fe59d9e78
+	github.com/995933447/redisgroup v0.0.0-20230217073803-d466ac136c7f
 	github.com/etcd-io/etcd v3.3.27+incompatible
 )
 
