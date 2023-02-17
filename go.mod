@@ -9,9 +9,9 @@ require (
 )
 
 require (
-	github.com/995933447/simpletrace v0.0.0-20221215132514-4140c70e8f71 // indirect
+	github.com/995933447/simpletrace v0.0.0-20230217061256-c25a914bd376 // indirect
 	github.com/995933447/std-go v0.0.0-20220806175833-ab3496c0b696 // indirect
-	github.com/995933447/stringhelper-go v0.0.0-20220731145713-daa961470957 // indirect
+	github.com/995933447/stringhelper-go v0.0.0-20221220072216-628db3bc29d8 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/coreos/bbolt v1.3.6 // indirect
 	github.com/coreos/etcd v3.3.27+incompatible // indirect
