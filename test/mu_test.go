@@ -3,7 +3,7 @@ package test
 import (
 	"context"
 	"github.com/995933447/distribmu"
-	"github.com/995933447/distribmu/util"
+	"github.com/995933447/distribmu/factory"
 	logger "github.com/995933447/log-go"
 	"github.com/995933447/log-go/impls/loggerwriters"
 	"github.com/995933447/redisgroup"
@@ -17,14 +17,14 @@ func TestRedisGroupMuLock(t *testing.T) {
 		redisgroup.NewNode("127.0.0.1", 6379, ""),
 	}, logger.NewLogger(MustNewFileLoggerWriter()))
 
-	muCfg := util.NewMuConf(
-		util.MuTypeRedis,
+	muCfg := factory.NewMuConf(
+		factory.MuTypeRedis,
 		"abc",
 		time.Second * 10,
 		"123",
-		util.NewRedisMuDriverConf(redisGroup, 500),
+		factory.NewRedisMuDriverConf(redisGroup, 500),
 		)
-	mu := util.MustNewMu(muCfg)
+	mu := factory.MustNewMu(muCfg)
 	success, err := mu.Lock(context.Background())
 	if err != nil {
 		t.Error(err)
@@ -109,14 +109,14 @@ func TestEtcdMuLock(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	newMuConf := util.NewMuConf(
-		util.MuTypeEtcd,
+	newMuConf := factory.NewMuConf(
+		factory.MuTypeEtcd,
 		"/abcd",
 		time.Second * 10,
 		"123",
-		util.NewEtcdMuDriverConf(etcdCli),
+		factory.NewEtcdMuDriverConf(etcdCli),
 		)
-	mu := util.MustNewMu(newMuConf)
+	mu := factory.MustNewMu(newMuConf)
 	success, err := mu.Lock(context.Background())
 	if err != nil {
 		t.Error(err)

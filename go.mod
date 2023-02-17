@@ -3,19 +3,19 @@ module github.com/995933447/distribmu
 go 1.19
 
 require (
-	github.com/995933447/log-go v0.0.0-20220806092608-7f0a23277e78
+	github.com/995933447/log-go v0.0.0-20230217055512-35531ea190e0
 	github.com/995933447/redisgroup v0.0.0-20220803160352-e08d00f81719
 	github.com/etcd-io/etcd v3.3.27+incompatible
 )
 
 require (
-	github.com/995933447/simpletrace v0.0.0-20220731150137-e9c6219dd21d // indirect
-	github.com/995933447/std-go v0.0.0-20220731152403-7a2382e99cd8 // indirect
+	github.com/995933447/simpletrace v0.0.0-20221215132514-4140c70e8f71 // indirect
+	github.com/995933447/std-go v0.0.0-20220806175833-ab3496c0b696 // indirect
 	github.com/995933447/stringhelper-go v0.0.0-20220731145713-daa961470957 // indirect
-	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/coreos/bbolt v1.3.6 // indirect
 	github.com/coreos/etcd v3.3.27+incompatible // indirect
-	github.com/coreos/go-semver v0.3.0 // indirect
+	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf // indirect
 	github.com/coreos/pkg v0.0.0-20220810130054-c7d1c02cb6cf // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
