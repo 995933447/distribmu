@@ -5,7 +5,7 @@ import (
 	"github.com/995933447/distribmu"
 	"github.com/995933447/distribmu/factory"
 	logger "github.com/995933447/log-go"
-	"github.com/995933447/log-go/impls/loggerwriters"
+	"github.com/995933447/log-go/impl/loggerwriter"
 	"github.com/995933447/redisgroup"
 	"github.com/etcd-io/etcd/client"
 	"testing"
@@ -60,12 +60,11 @@ func TestRedisGroupMuLock(t *testing.T) {
 	}
 }
 
-func CheckTimeToOpenNewFileHandlerForFileLogger() loggerwriters.CheckTimeToOpenNewFileFunc {
+func CheckTimeToOpenNewFileHandlerForFileLogger() loggerwriter.CheckTimeToOpenNewFileFunc {
 	return func(lastOpenFileTime *time.Time, isNeverOpenFile bool) (string, bool) {
 		if isNeverOpenFile {
 			return time.Now().Format("2006010215.log"), true
 		}
-
 		if lastOpenFileTime.Hour() != time.Now().Hour() {
 			return time.Now().Format("2006010215.log"), true
 		}
@@ -81,7 +80,7 @@ func CheckTimeToOpenNewFileHandlerForFileLogger() loggerwriters.CheckTimeToOpenN
 }
 
 func MustNewFileLoggerWriter() logger.LoggerWriter {
-	loggerWriter := loggerwriters.NewFileLoggerWriter(
+	loggerWriter := loggerwriter.NewFileLoggerWriter(
 		"./",
 		1023,
 		10,
